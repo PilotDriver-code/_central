@@ -1,0 +1,64 @@
+# ============================================================
+# Ligação com a Central
+# ============================================================
+import contextlib
+import io
+from pathlib import Path
+
+# Pasta fixa por enquanto
+PASTA_SAC = Path(r"C:\Users\midoubr\OneDrive - Banco Itaú SA\Documentos\Arquivos_Conciliacao\SAC")
+
+
+class _ParaConsole(io.TextIOBase):
+    """Faz os print() aparecerem no console da tela."""
+
+    def __init__(self, ctx):
+        self.ctx, self._buf = ctx, ""
+
+    def write(self, texto):
+        self._buf += texto
+        while "\n" in self._buf:
+            linha, self._buf = self._buf.split("\n", 1)
+            if linha.strip():
+                self.ctx.log(linha)
+        return len(texto)
+
+
+def executar(params: dict, ctx) -> str:
+    bases = params["bases"]
+    saida = Path(params["saida"])
+    processadas = 0
+
+    with contextlib.redirect_stdout(_ParaConsole(ctx)):
+        for i, base in enumerate(bases, start=1):
+            ctx.check()
+
+            arquivo = PASTA_SAC / base / "VCRAOPRF.txt"
+            if not arquivo.is_file():
+                ctx.log(f"{base}: arquivo não encontrado ({arquivo})", "warn")
+                continue
+
+            ctx.log(f"Processando {base}", "step")
+
+            arquivo_vcra_OPERACAO = tratar_arquivo_vcra_OPERACAO(str(arquivo), arquivo_de_para_PRIVADOS)
+            arquivo_vcra_OPERACAO_amortizacao = add_amortizacao_do_feeder(arquivo_vcra_OPERACAO, arquivo_feeder)
+            arquivo_vcra_OPERACAO_juros = add_juros_do_feeder(arquivo_vcra_OPERACAO_amortizacao, arquivo_feeder)
+            arquivo_vcra_OPERACAO_vencimento = add_vencimento_do_feeder(arquivo_vcra_OPERACAO_juros, arquivo_feeder)
+
+            vcra_OPERACAO_com_EVENTOS = arquivo_vcra_OPERACAO_vencimento.copy()
+            vcra_OPERACAO_com_FINANCEIRO = calculo_financeiro_pagamento(vcra_OPERACAO_com_EVENTOS)
+            copia_vcra_OPERACAO_com_FINANCEIRO = vcra_OPERACAO_com_FINANCEIRO.copy()
+            controle_de_FINANCEIRO = calculo_controle_de_financeiro(copia_vcra_OPERACAO_com_FINANCEIRO)
+
+            arquivo_final_ajuste = ajuste_centavos(vcra_OPERACAO_com_FINANCEIRO, controle_de_FINANCEIRO)
+            arquivo_final_ajuste = tratar_arquivo_final_ajuste(arquivo_final_ajuste)
+
+            pasta_saida = saida / base
+            pasta_saida.mkdir(parents=True, exist_ok=True)
+            salvar_e_dividir(arquivo_final_ajuste, str(pasta_saida), prefixo=f"AJUSTE_{base}_parte")
+
+            processadas += 1
+            ctx.log(f"{base}: arquivos gravados em {pasta_saida}", "ok")
+            ctx.progress(i / len(bases) * 100)
+
+    return f"PU cravado para {processadas} de {len(bases)} base(s)."
