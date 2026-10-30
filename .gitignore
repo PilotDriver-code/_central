@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+
+# Pastas de trabalho criadas pela Central
+setup/
