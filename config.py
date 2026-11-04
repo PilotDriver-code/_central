@@ -35,6 +35,12 @@ SUBPASTAS = {
     "replicar_fluxo": ("Replicar Fluxo",   "Saída do Replicar fluxo"),
     "listas":         ("Listas de ativos", "Arquivos .txt usados no modo em lote"),
     "config":         ("Config",           "Feeder e configurações da Central"),
+
+    # Arquivos de conciliação
+    "sac_xz":         ("Arquivos Conciliacao/SAC/XZ",  "Arquivos SAC da base XZ"),
+    "sac_bn7":        ("Arquivos Conciliacao/SAC/BN7", "Arquivos SAC da base BN7"),
+    "sac_lz":         ("Arquivos Conciliacao/SAC/LZ",  "Arquivos SAC da base LZ"),
+    "cetip":          ("Arquivos Conciliacao/CETIP",   "Arquivos da CETIP"),
 }
 
 # Feeder padrão (dentro da subpasta "config"). Pode ser trocado na aba Configurações.
