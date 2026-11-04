@@ -207,22 +207,30 @@ class MainWindow(W.QMainWindow):
                 return
 
     def _check_setup(self):
-        """Na abertura: cria as pastas de trabalho que faltarem (ao lado do .exe)."""
+        """Na abertura: cria as pastas e o Feeder modelo que faltarem (dentro de setup)."""
         situacao = cfg.verificar()
-        if not situacao.pastas_faltando:
-            return
         try:
-            criadas = cfg.garantir_pastas()
+            criadas = cfg.garantir_pastas()  # roda sempre: pastas E Feeder
         except OSError as exc:
             self.go_to_settings()
-            Toast.show_message(self.centralWidget(),
-                               f"Não foi possível criar as pastas em {cfg.pasta_raiz()}: {exc}", "error")
+            Toast.show_message(
+                self.centralWidget(),
+                f"Não foi possível criar as pastas em {cfg.pasta_raiz()}: {exc}",
+                "error",
+            )
             return
         if situacao.primeira_vez:
-            Toast.show_message(self.centralWidget(), "Pastas de trabalho criadas junto do programa.", "ok")
-        else:
-            Toast.show_message(self.centralWidget(),
-                               f"{len(criadas)} subpasta(s) que faltavam foram recriadas.", "warn")
+            Toast.show_message(
+                self.centralWidget(),
+                "Pastas de trabalho criadas junto do programa.",
+                "ok",
+            )
+        elif criadas:
+            Toast.show_message(
+                self.centralWidget(),
+                f"{len(criadas)} subpasta(s) que faltavam foram recriadas.",
+                "warn",
+            )
         self.stack.currentWidget().on_shown()
 
     def _shortcuts(self):
