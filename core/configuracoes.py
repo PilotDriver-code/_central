@@ -65,14 +65,56 @@ def pasta(chave: str) -> Path:
 
 
 def garantir_pastas() -> list[Path]:
-    """Cria as subpastas que faltarem. Devolve as que foram criadas agora."""
+    """Cria as subpastas que faltarem e o Feeder modelo. Devolve as pastas criadas agora."""
     criadas = []
     for chave in config.SUBPASTAS:
         p = pasta(chave)
         if not p.is_dir():
             p.mkdir(parents=True, exist_ok=True)
             criadas.append(p)
+    garantir_feeder()
     return criadas
+
+
+# Cabeçalho do Feeder modelo: (texto, cor de fundo, largura da coluna)
+FEEDER_COLUNAS = [
+    ("ATIVO", "C00000", 14),
+    ("JUROS", "153D64", 14),
+    ("AMORTIZACAO", "153D64", 22),
+    ("VENCIMENTO", "0D3512", 20),
+]
+
+
+def garantir_feeder() -> Path | None:
+    """Cria o Feeder_Local.xlsx (só com o cabeçalho) se ele ainda não existir.
+
+    Só mexe no Feeder padrão da pasta Config; um Feeder escolhido em
+    Configurações nunca é criado nem alterado. Devolve o caminho se criou.
+    """
+    if feeder_personalizado():
+        return None
+    caminho = pasta("config") / config.NOME_FEEDER_PADRAO
+    if caminho.exists():
+        return None
+
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font, PatternFill
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Feeder"
+    for col, (texto, cor, largura) in enumerate(FEEDER_COLUNAS, start=1):
+        cel = ws.cell(row=1, column=col, value=texto)
+        cel.font = Font(bold=True, color="FFFFFF", size=12)
+        cel.fill = PatternFill("solid", fgColor=cor)
+        cel.alignment = Alignment(horizontal="center", vertical="center")
+        ws.column_dimensions[cel.column_letter].width = largura
+    ws.row_dimensions[1].height = 22
+    ws.freeze_panes = "A2"  # cabeçalho fixo ao rolar
+
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(caminho)
+    return caminho
 
 
 # Arquivos -------------------------------------------------------------------
