@@ -144,6 +144,7 @@ QWidget { color: $ink; font-size: 13px; }
 #Hint { font-size: 12px; color: $ink_faint; }
 #Hint[tone="ok"] { color: $success; }
 #Hint[tone="error"] { color: $danger; }
+#FolderScroll, #FolderList { background: transparent; }
 #Divider { background: $border; min-height: 1px; max-height: 1px; }
 #StatValue { font-size: 20px; font-weight: 600; color: $ink; }
 #Mono { font-family: $mono; font-size: 12px; color: $ink_muted; }
