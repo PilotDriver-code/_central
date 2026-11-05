@@ -4,8 +4,8 @@ from core import configuracoes as cfg
 
 from .. import icons, theme
 from ..qt import QtWidgets, Qt
-from ..widgets import (Badge, Field, GhostButton, IconButton, Panel, PathDisplay, Toast, hline,
-                       label, open_path)
+from ..widgets import (Badge, ElidedLabel, Field, GhostButton, IconButton, Panel, PathDisplay, Toast,
+                       hline, label, open_path)
 from .base import BasePage
 
 W = QtWidgets
