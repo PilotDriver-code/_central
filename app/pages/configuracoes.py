@@ -82,12 +82,24 @@ class ConfiguracoesPage(BasePage):
         pastas.body.addWidget(hline())
         pastas.body.addWidget(label("Subpastas", "FieldLabel"))
         self.rows = [FolderRow(k) for k in config.SUBPASTAS]
-        lista = W.QVBoxLayout()
+
+        # Lista com rolagem: com muitas subpastas, rola em vez de espremer as linhas
+        conteudo = W.QWidget()
+        conteudo.setObjectName("FolderList")
+        lista = W.QVBoxLayout(conteudo)
+        lista.setContentsMargins(0, 0, 8, 0)  # espaço para a barra de rolagem
         lista.setSpacing(0)
         for r in self.rows:
             lista.addWidget(r)
-        pastas.body.addLayout(lista)
-        pastas.body.addStretch(1)
+        lista.addStretch(1)
+
+        rolagem = W.QScrollArea()
+        rolagem.setObjectName("FolderScroll")
+        rolagem.setWidgetResizable(True)
+        rolagem.setFrameShape(W.QFrame.Shape.NoFrame)
+        rolagem.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        rolagem.setWidget(conteudo)
+        pastas.body.addWidget(rolagem, 1)
 
         self.btn_create = GhostButton("Criar pastas que faltam", "rotate")
         self.btn_create.clicked.connect(self._create)
